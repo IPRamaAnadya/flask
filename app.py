@@ -39,7 +39,7 @@ def coba():
             res["result"] = data
             return res
         except:
-            res["result"] = "error#0"
+            res["result"] = "error #0"
 
 @app.route("/aksara", methods=["GET"])
 def aksara():
