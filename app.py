@@ -34,12 +34,9 @@ def coba():
     if request.method == 'POST':
         save_path = os.path.join("audio/", "temp.wav")
         request.files['audio_data'].save(save_path)
-        try:
-            data = prediction()
-            res["result"] = data
-            return res
-        except:
-            res["result"] = "error#0"
+        data = prediction()
+        res["result"] = data
+        return res
 
 @app.route("/aksara", methods=["GET"])
 def aksara():
