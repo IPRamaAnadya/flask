@@ -20,7 +20,10 @@ api = Api(app)
 CORS(app)
 
 res = {}
+aksara = ["h","n","c","r","k","d","t",'s',"w","l","m","g","b","ng","p","j","y","ny"]
+
 model_a = pickle.load(open("models/model_a.pkl", 'rb'))
+label_a = [x+"a" for x in aksara]
 
 @app.route("/")
 def landing():
@@ -31,19 +34,19 @@ def landing():
 def coba():
     if request.method == "GET":
         data = prediction()
-        res["result"] = str(data)
+        res["result"] = label_a[data]
         return res
     if request.method == 'POST':
         save_path = os.path.join("audio/", "temp.wav")
         request.files['audio_data'].save(save_path)
         data = prediction()
-        res["result"] = str(data)
+        res["result"] = label_a[data]
         return res
 
 @app.route("/aksara", methods=["GET"])
 def aksara():
     data = prediction()
-    res["result"] = str(data)
+    res["result"] = label_a[data]
     return res
 
 def prediction():
