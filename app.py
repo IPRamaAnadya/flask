@@ -31,13 +31,13 @@ def landing():
 def coba():
     if request.method == "GET":
         data = prediction()
-        res["result"] = data
+        res["result"] = str(data)
         return res
     if request.method == 'POST':
         save_path = os.path.join("audio/", "temp.wav")
         request.files['audio_data'].save(save_path)
         data = prediction()
-        res["result"] = data
+        res["result"] = str(data)
         return res
 
 @app.route("/aksara", methods=["GET"])
