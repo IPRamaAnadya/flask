@@ -25,40 +25,101 @@ aksara = ["h","n","c","r","k","d","t",'s',"w","l","m","g","b","ng","p","j","y","
 model_a = pickle.load(open("models/model_a.pkl", 'rb'))
 label_a = [x+"a" for x in aksara]
 
-@app.route("/")
-def landing():
-    res["value"] = "entahlah"
-    return res
+model_i = pickle.load(open("models/model_i.pkl", 'rb'))
+label_i = [x+"i" for x in aksara]
 
-@app.route("/data", methods=["GET", "POST"])
-def coba():
-    if request.method == "GET":
-        data = prediction()
-        res["result"] = label_a[data]
-        return res
-    if request.method == 'POST':
-        save_path = os.path.join("audio/", "temp.wav")
-        request.files['audio_data'].save(save_path)
-        data = prediction()
-        res["result"] = label_a[data]
-        return res
+model_u = pickle.load(open("models/model_u.pkl", 'rb'))
+label_u = [x+"u" for x in aksara]
 
-@app.route("/aksara", methods=["GET"])
-def aksara():
-    data = prediction()
-    res["result"] = label_a[data]
-    return res
+model_ē = pickle.load(open("models/model_ē.pkl", 'rb'))
+label_ē = [x+"ē" for x in aksara]
 
-def prediction():
+model_o = pickle.load(open("models/model_o.pkl", 'rb'))
+label_o = [x+"o" for x in aksara]
+
+model_e = pickle.load(open("models/model_e.pkl", 'rb'))
+label_e = [x+"e" for x in aksara]
+
+model_kata = pickle.load(open("models/model_kata.pkl", 'rb'))
+label_kata = ["adi", "sate", "meme", "bape", "melali"]
+
+def prediction_a():
     global model_a
     mfcc = np.array(mean_mfccs("audio/temp.wav"))
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_a.predict(X)
-    return result[0]
+    result_string = label_a[result[0]]
+    return result_string
+
+def prediction_i():
+    global model_i
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_i.predict(X)
+    result_string = label_i[result[0]]
+    return result_string
+
+def prediction_u():
+    global model_u
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_u.predict(X)
+    result_string = label_u[result[0]]
+    return result_string
+
+def prediction_ē():
+    global model_ē
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_ē.predict(X)
+    result_string = label_ē[result[0]]
+    return result_string
+
+def prediction_o():
+    global model_o
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_o.predict(X)
+    result_string = label_o[result[0]]
+    return result_string
+
+def prediction_e():
+    global model_e
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_e.predict(X)
+    result_string = label_e[result[0]]
+    return result_string
+
+def prediction_kata():
+    global model_kata
+    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    X = np.reshape(mfcc,(1, mfcc.size))
+    result = model_kata.predict(X)
+    result_string = label_kata[result[0]]
+    return result_string
 
 def mean_mfccs(p):
     x, sr = librosa.load(p)
     return [np.mean(feature) for feature in librosa.feature.mfcc(x, n_mfcc=13)]
+
+@app.route("/")
+def landing():
+    return res
+
+@app.route("/data", methods=["GET", "POST"])
+def get_prediction():
+    if request.method == "GET":
+        data = prediction_a()
+        res["result"] = data
+        return res
+    if request.method == 'POST':
+        save_path = os.path.join("audio/", "temp.wav")
+        request.files['audio_data'].save(save_path)
+        request_model = request.form["request_model"]
+        data = prediction_a() if (request_model == "a") else prediction_i() if (request_model == "i") else prediction_u() if (request_model == "u") else prediction_ē() if (request_model == "ē") else prediction_o() if (request_model == "o") else prediction_e() if (request_model == "e") else prediction_kata() if (request_model == "kata") else "server error"
+        res["result"] = data
+        return res
 
 if __name__ == "__main__":
     app.run(debug=True, port = int(os.environ.get('PORT', 5000)))
