@@ -41,7 +41,7 @@ model_e = pickle.load(open("models/model_e.pkl", 'rb'))
 label_e = [x+"e" for x in aksara]
 
 model_kata = pickle.load(open("models/model_kata.pkl", 'rb'))
-label_kata = ["adi", "sate", "meme", "bape", "melali"]
+label_kata = ["adi", "satē", "mēmē", "bape", "melali"]
 
 def prediction_a():
     global model_a
