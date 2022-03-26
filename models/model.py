@@ -1,7 +1,13 @@
 import numpy as np
+import librosa.feature
+import librosa.display
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from fastdtw import fastdtw
+import random
+from PIL import Image
 from sklearn.metrics import accuracy_score
+import operator
 import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -68,7 +74,6 @@ X_train_e, X_test_e, y_train_e, y_test_e = train_test_split(fitur_e, label_e, te
 X_train_o, X_test_o, y_train_o, y_test_o = train_test_split(fitur_o, label_o, test_size=0.15, random_state=42)
 
 X_train_ē, X_test_ē, y_train_ē, y_test_ē = train_test_split(fitur_ē, label_ē, test_size=0.15, random_state=42)
-
 
 model_a = KNeighborsClassifier(n_neighbors = 3)
 model_a.fit(X_train_a, y_train_a)

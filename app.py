@@ -9,7 +9,8 @@ import librosa
 import numpy as np
 import librosa.feature
 import pickle
-# from models.model import KNN
+import noisereduce as nr
+
 # init object flask
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ label_kata = ["adi", "satē", "mēmē", "bape", "melali"]
 
 def prediction_a():
     global model_a
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_a.predict(X)
     result_string = label_a[result[0]]
@@ -53,7 +54,7 @@ def prediction_a():
 
 def prediction_i():
     global model_i
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_i.predict(X)
     result_string = label_i[result[0]]
@@ -61,7 +62,7 @@ def prediction_i():
 
 def prediction_u():
     global model_u
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_u.predict(X)
     result_string = label_u[result[0]]
@@ -69,7 +70,7 @@ def prediction_u():
 
 def prediction_ē():
     global model_ē
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_ē.predict(X)
     result_string = label_ē[result[0]]
@@ -77,7 +78,7 @@ def prediction_ē():
 
 def prediction_o():
     global model_o
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_o.predict(X)
     result_string = label_o[result[0]]
@@ -85,7 +86,7 @@ def prediction_o():
 
 def prediction_e():
     global model_e
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_e.predict(X)
     result_string = label_e[result[0]]
@@ -93,15 +94,25 @@ def prediction_e():
 
 def prediction_kata():
     global model_kata
-    mfcc = np.array(mean_mfccs("audio/temp.wav"))
+    mfcc = get_mfcc("audio/temp.wav")
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_kata.predict(X)
     result_string = label_kata[result[0]]
     return result_string
 
-def mean_mfccs(p):
+def normalize_sample(x):
+    max_value = max(x)
+    return np.array([y/max_value for y in x])
+
+def noise_reduce(x, sr):
+    reduced_noise = nr.reduce_noise(y=x, sr=sr)
+    return reduced_noise
+    
+def get_mfcc(p):
     x, sr = librosa.load(p)
-    return [np.mean(feature) for feature in librosa.feature.mfcc(x, n_mfcc=13)]
+    x = noise_reduce(x, sr)
+    x = normalize_sample(x)
+    return np.ndarray.flatten(np.array([x[0:10] for x in librosa.feature.mfcc(x, n_mfcc = 13)]))
 
 @app.route("/")
 def landing():
@@ -117,7 +128,7 @@ def get_prediction():
         save_path = os.path.join("audio/", "temp.wav")
         request.files['audio_data'].save(save_path)
         request_model = request.form["request_model"]
-        data = prediction_a() if (request_model == "a") else prediction_i() if (request_model == "i") else prediction_u() if (request_model == "u") else prediction_ē() if (request_model == "ē") else prediction_o() if (request_model == "o") else prediction_e() if (request_model == "e") else prediction_kata() if (request_model == "kata") else "server error"
+        data = prediction_a() if (request_model == "a") else prediction_i() if (request_model == "i") else prediction_u() if (request_model == "u") else prediction_ē() if (request_model == "ē") else prediction_o() if (request_model == "o") else prediction_e() if (request_model == "e") else prediction_kata() if (request_model == "kata") else "-1"
         res["result"] = data
         return res
 
