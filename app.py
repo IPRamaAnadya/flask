@@ -101,18 +101,21 @@ def prediction_kata():
     return result_string
 
 def normalize_sample(x):
-    max_value = max(x)
-    return np.array([y/max_value for y in x])
+    x -= np.mean(x)
+    return x
 
 def noise_reduce(x, sr):
     reduced_noise = nr.reduce_noise(y=x, sr=sr)
     return reduced_noise
-    
+
 def get_mfcc(p):
     x, sr = librosa.load(p)
     x = noise_reduce(x, sr)
     x = normalize_sample(x)
-    return np.ndarray.flatten(np.array([x[0:10] for x in librosa.feature.mfcc(x, n_mfcc = 13)]))
+    mfcc = librosa.feature.mfcc(x, n_mfcc = 13)
+#     mfcc /= np.amax(np.absolute(mfcc))
+    mfcc = np.delete(mfcc,0,0)
+    return np.ndarray.flatten(np.array([x[0:10] for x in mfcc]))
 
 @app.route("/")
 def landing():
@@ -128,7 +131,10 @@ def get_prediction():
         save_path = os.path.join("audio/", "temp.wav")
         request.files['audio_data'].save(save_path)
         request_model = request.form["request_model"]
-        data = prediction_a() if (request_model == "a") else prediction_i() if (request_model == "i") else prediction_u() if (request_model == "u") else prediction_ē() if (request_model == "ē") else prediction_o() if (request_model == "o") else prediction_e() if (request_model == "e") else prediction_kata() if (request_model == "kata") else "-1"
+        try:
+            data = prediction_a() if (request_model == "a") else prediction_i() if (request_model == "i") else prediction_u() if (request_model == "u") else prediction_ē() if (request_model == "ē") else prediction_o() if (request_model == "o") else prediction_e() if (request_model == "e") else prediction_kata() if (request_model == "kata") else "error#ModelNotFound"
+        except:
+            data = "error#AudioIsToShort"
         res["result"] = data
         return res
 
