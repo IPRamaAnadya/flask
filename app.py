@@ -10,6 +10,7 @@ import numpy as np
 import librosa.feature
 import pickle
 import noisereduce as nr
+from module import MyModule
 
 # init object flask
 app = Flask(__name__)
@@ -21,6 +22,7 @@ api = Api(app)
 CORS(app)
 
 res = {}
+modul = MyModule()
 aksara = ["h","n","c","r","k","d","t",'s',"w","l","m","g","b","ng","p","j","y","ny"]
 
 model_a = pickle.load(open("models/model_a.pkl", 'rb'))
@@ -87,6 +89,7 @@ def prediction_o():
 def prediction_e():
     global model_e
     mfcc = get_mfcc("audio/temp.wav")
+    x, sr = librosa.load(p)
     X = np.reshape(mfcc,(1, mfcc.size))
     result = model_e.predict(X)
     result_string = label_e[result[0]]
@@ -95,9 +98,9 @@ def prediction_e():
 def prediction_kata():
     global model_kata
     mfcc = get_mfcc("audio/temp.wav")
-    X = np.reshape(mfcc,(1, mfcc.size))
-    result = model_kata.predict(X)
-    result_string = label_kata[result[0]]
+    x, sr = librosa.load("audio/temp.wav")
+    res = modul.predict(x,sr)
+    result_string = label_kata[res]
     return result_string
 
 def normalize_sample(x):
@@ -124,7 +127,9 @@ def landing():
 @app.route("/data", methods=["GET", "POST"])
 def get_prediction():
     if request.method == "GET":
-        data = prediction_a()
+        modul = MyModule()
+        x, sr = librosa.load("audio/temp.wav")
+        data = modul.predict(x=x,sr=sr)
         res["result"] = data
         return res
     if request.method == 'POST':
