@@ -28,6 +28,7 @@ class KNN(object):
         return label
     def predict(self, X):
         result = []
+        dist_arr = []
         for x in X:
             dist = []
             for j in range(len(self.x)):
@@ -35,4 +36,5 @@ class KNN(object):
                 dist.append([distance, self.y[j]])
             dist.sort(key=lambda row: (row[0]), reverse=False)
             result.append(self.get_label(dist[:self.k]))
-        return result
+            dist_arr.append(dist[:self.k])
+        return result, dist_arr
